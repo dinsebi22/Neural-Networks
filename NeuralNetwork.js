@@ -18,10 +18,15 @@ class NeuralNetwork {
         this._inputs = [];
         this._hidden = [];
 
+        this._bias0 = new Matrix(1, this._numHidden);
+        this._bias1 = new Matrix(1, this._numOutputs);
+
         this._weights0 = new Matrix(this._numImputs, this._numHidden);
         this._weights1 = new Matrix(this._numHidden, this._numOutputs);
 
         // Randomize Initial weights
+        this._bias0.randomWeights();
+        this._bias1.randomWeights();
         this._weights0.randomWeights();
         this._weights1.randomWeights();
     }
@@ -42,6 +47,20 @@ class NeuralNetwork {
         this._imputs = imputs
     }
 
+    get bias0() {
+        return this._bias0;
+    }
+    set bias0(bias0) {
+        this._bias0 = bias0;
+    }
+
+    get bias1() {
+        return this._bias1;
+    }
+    set bias1(bias1) {
+        this._bias1 = bias1;
+    }
+
     get weights0() {
         return this._weights0;
     }
@@ -60,11 +79,17 @@ class NeuralNetwork {
         this.inputs = Matrix.convertFromArray(inputArray);
 
         this.hidden = Matrix.dot(this.inputs, this.weights0);
+        // Applying Bias to neuron
+        this.hidden = Matrix.add(this.hidden , this.bias0);
         // Apply sigmoid function to each cell
-        this.hidden = Matrix.map(this.hidden, x => sigmoid(x))
+        this.hidden = Matrix.map(this.hidden, x => sigmoid(x));
+        
         let outputs = Matrix.dot(this.hidden, this.weights1);
+        // Applying Bias to neuron
+        outputs = Matrix.add(outputs , this.bias1);
         // Apply sigmoid function to each cell
         outputs = Matrix.map(outputs, x => sigmoid(x));
+
         return outputs;
     }
 
@@ -93,6 +118,9 @@ class NeuralNetwork {
         let inputsTranspose = Matrix.transpose(this.inputs);
         this.weights0 = Matrix.add(this.weights0, Matrix.dot(inputsTranspose, hiddenDeltas));
 
+        // Update Biases
+        this.bias1 = Matrix.add(this.bias1 , outputDeltas)
+        this.bias0 = Matrix.add(this.bias0 , hiddenDeltas)
 
     }
 
@@ -237,6 +265,7 @@ class Matrix {
         }
     }
 }
+
 
 
 
