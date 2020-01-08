@@ -9,8 +9,8 @@
 // Neural Network
 // Neural Network
 
-class NeuralNetwork{
-    constructor(numImputs , numHidden , numOutputs){
+class NeuralNetwork {
+    constructor(numImputs, numHidden, numOutputs) {
         this._numImputs = numImputs;
         this._numHidden = numHidden;
         this._numOutputs = numOutputs;
@@ -18,74 +18,74 @@ class NeuralNetwork{
         this._inputs = [];
         this._hidden = [];
 
-        this._weights0 = new Matrix(this._numImputs , this._numHidden);
-        this._weights1 = new Matrix(this._numHidden , this._numOutputs);
+        this._weights0 = new Matrix(this._numImputs, this._numHidden);
+        this._weights1 = new Matrix(this._numHidden, this._numOutputs);
 
         // Randomize Initial weights
         this._weights0.randomWeights();
         this._weights1.randomWeights();
     }
 
-    get hidden(){
+    get hidden() {
         return this._hidden;
     }
 
-    set hidden(hidden){
+    set hidden(hidden) {
         this._hidden = hidden
     }
 
-    get imputs(){
+    get imputs() {
         return this._inputs;
     }
 
-    set imputs(imputs){
+    set imputs(imputs) {
         this._imputs = imputs
     }
 
-    get weights0(){
+    get weights0() {
         return this._weights0;
     }
-    set weights0(weights0){
+    set weights0(weights0) {
         this._weights0 = weights0;
     }
 
-    get weights1(){
+    get weights1() {
         return this._weights1;
     }
-    set weights1(weights1){
+    set weights1(weights1) {
         this._weights1 = weights1;
     }
 
-    feedForward(inputArray){
+    feedForward(inputArray) {
         this.inputs = Matrix.convertFromArray(inputArray);
 
-        this.hidden = Matrix.dot(this.inputs , this.weights0);
+        this.hidden = Matrix.dot(this.inputs, this.weights0);
         // Apply sigmoid function to each cell
         this.hidden = Matrix.map(this.hidden, x => sigmoid(x))
-        let outputs = Matrix.dot(this.hidden , this.weights1);
+        let outputs = Matrix.dot(this.hidden, this.weights1);
         // Apply sigmoid function to each cell
-        outputs = Matrix.map(outputs , x => sigmoid(x));
+        outputs = Matrix.map(outputs, x => sigmoid(x));
         return outputs;
     }
 
     // TRain Neurons
 
-    train(inputArray , targetArray){
+    train(inputArray, targetArray) {
         let outputs = this.feedForward(inputArray);
         let targets = Matrix.convertFromArray(targetArray);
-        let outputErrors = Matrix.substract(targets,outputs);
-        
+        let outputErrors = Matrix.substract(targets, outputs);
+
         // calculate deltas ( errors * derivative of the output)
-        let outputDerivatives = Matrix.map(outputs , x => sigmoid(x , true))
-        let outputDeltas = Matrix.multiply(outputErrors , outputDerivatives)
+        let outputDerivatives = Matrix.map(outputs, x => sigmoid(x, true))
+        let outputDeltas = Matrix.multiply(outputErrors, outputDerivatives)
 
         // Calculate hidden layer errors (delta "dot" transpose of weights1)
         let weights1Tansposed = Matrix.transpose(this.weights1);
         let hiddenErrors = Matrix.dot(outputDeltas, weights1Tansposed);
 
         // Calculate the hidden deltas ( errors * derivatives of weights1)
-        let hiddenDerivatives = Matrix.map(this.hidden , x => sigmoid(x , true))
-        let hiddenDeltas = Matrix.multiply(hiddenErrors , hiddenDerivatives);
+        let hiddenDerivatives = Matrix.map(this.hidden, x => sigmoid(x, true))
+        let hiddenDeltas = Matrix.multiply(hiddenErrors, hiddenDerivatives);
 
         // Update the weights ( add transpose of layes "dot" deltas)
         let hiddenTranspose = Matrix.transpose(this.hidden);
@@ -98,11 +98,11 @@ class NeuralNetwork{
 
 }
 
-function sigmoid(x , derivative = false){
-    if(derivative){
-        return x* (1 - x); // where x = sigmoid(x)
+function sigmoid(x, derivative = false) {
+    if (derivative) {
+        return x * (1 - x); // where x = sigmoid(x)
     }
-    return 1/ (1 + Math.exp(-x));
+    return 1 / (1 + Math.exp(-x));
 }
 
 // Matrix Functions
@@ -169,7 +169,7 @@ class Matrix {
 
     // dot product of two matrices
     static dot(m0, m1) {
-    
+
         if (m0.cols != m1.rows) {
             throw new Error("Matrices are not \"dot\" compatible!");
         }
@@ -197,32 +197,32 @@ class Matrix {
         return m;
     }
 
-    static convertFromArray(arr){
-        return new Matrix(1 , arr.length , [arr]);
+    static convertFromArray(arr) {
+        return new Matrix(1, arr.length, [arr]);
     }
 
     // Apply function to each cell of matrix
-    static map(m0 , myFunction){
-        let m = new Matrix(m0.rows , m0.cols);
+    static map(m0, myFunction) {
+        let m = new Matrix(m0.rows, m0.cols);
         for (let i = 0; i < m.rows; i++) {
             for (let j = 0; j < m.cols; j++) {
-                m.data[i][j] = myFunction(m0.data[i][j])                
+                m.data[i][j] = myFunction(m0.data[i][j])
             }
         }
         return m;
     }
 
     // find transpose of
-    static transpose(m0){
-        let m = new Matrix(m0.cols , m0.rows);
+    static transpose(m0) {
+        let m = new Matrix(m0.cols, m0.rows);
         for (let i = 0; i < m0.rows; i++) {
             for (let j = 0; j < m0.cols; j++) {
-                m.data[j][i] = m0.data[i][j]               
+                m.data[j][i] = m0.data[i][j]
             }
         }
         return m;
     }
-    
+
     static checkDimensions(m0, m1) {
         if (m0.rows != m1.rows || m0.cols != m1.cols) {
             throw new Error("Matrices are of different Sizes");
@@ -238,3 +238,40 @@ class Matrix {
     }
 }
 
+
+
+// Neural Nerwork constans
+const NUM_IMPUTS = 2;
+const NUM_HIDDEN = 5;
+const NUM_OUTPUTS = 1;
+const NUM_SAMPLES = 100000;
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+
+let neuralNetowk = new NeuralNetwork(NUM_IMPUTS, NUM_HIDDEN, NUM_OUTPUTS)
+
+//Train the network
+for (let i = 0; i < NUM_SAMPLES; i++) {
+    // Test XOR Gate Logic
+    //0 0 = 0
+    //0 1 = 1
+    //1 0 = 1
+    //1 1 = 0
+    let input0 = Math.round(Math.random())
+    let input1 = Math.round(Math.random())
+    let output = (input0 == input1) ? 0 : 1;
+    neuralNetowk.train([input0, input1], [output])
+}
+// Test output
+console.log("0 0 = " + neuralNetowk.feedForward([0, 0]).data)
+console.log("1 0 = " + neuralNetowk.feedForward([1, 0]).data)
+console.log("0 1 = " + neuralNetowk.feedForward([0, 1]).data)
+console.log("1 1 = " + neuralNetowk.feedForward([1, 1]).data)
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
